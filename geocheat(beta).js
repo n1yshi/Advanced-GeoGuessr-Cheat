@@ -1,15 +1,4 @@
-// ==UserScript==
-// @name         Geoguessr Location Resolver (Overlay Only)
-// @namespace    http://tampermonkey.net/
-// @version      13.4
-// @description  Features: Visual overlay marker + embedded map
-// @author       0x978
-// @match        https://www.geoguessr.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=geoguessr.com
-// @grant        GM_webRequest
-// @downloadURL https://update.greasyfork.org/scripts/450253/Geoguessr%20Location%20Resolver%20%28Works%20in%20all%20modes%29.user.js
-// @updateURL https://update.greasyfork.org/scripts/450253/Geoguessr%20Location%20Resolver%20%28Works%20in%20all%20modes%29.meta.js
-// ==/UserScript==
+
 
 let globalCoordinates = {
     lat: 0,
@@ -437,4 +426,5 @@ setInterval(() => {
             lastMapUpdate = now;
         }
     }
+
 }, 500);
