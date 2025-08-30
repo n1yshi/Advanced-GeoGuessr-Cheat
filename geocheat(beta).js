@@ -1,5 +1,3 @@
-
-
 let globalCoordinates = {
     lat: 0,
     lng: 0
@@ -428,3 +426,4 @@ setInterval(() => {
     }
 
 }, 500);
+
