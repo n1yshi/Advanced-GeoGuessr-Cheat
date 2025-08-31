@@ -70,4 +70,4 @@ No license information was provided.  All rights are reserved by the author.
 
 ## Contact/Support Information
 
-For issues, questions, or suggestions, please open an issue on the GitHub repository: [https://github.com/MasterM142/Advanced-GeoGuessr-Cheats-Extension-/issues](https://github.com/MasterM142/Advanced-GeoGuessr-Cheats-Extension-/issues)
+For issues, questions, or suggestions, please open an issue on the GitHub repository: [https://github.com/n1yshi/Advanced-GeoGuessr-Cheats-Extension-/issues](https://github.com/MasterM142/Advanced-GeoGuessr-Cheats-Extension-/issues)
