@@ -6,7 +6,6 @@ let globalCoordinates = {
 let embeddedMapContainer = null;
 let overlayMarker = null;
 
-// Intercept Google Street View API calls to get coordinates
 var originalOpen = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function(method, url) {
     if (method.toUpperCase() === 'POST' &&
@@ -25,17 +24,14 @@ XMLHttpRequest.prototype.open = function(method, url) {
             globalCoordinates.lat = lat
             globalCoordinates.lng = lng
             
-            // Update embedded map with new coordinates
             updateEmbeddedMap(lat, lng);
             
-            // Remove old overlay marker for new round
             removeOverlayMarker();
         });
     }
     return originalOpen.apply(this, arguments);
 };
 
-// ====================================Overlay Marker====================================
 
 function createOverlayMarker() {
     const {lat, lng} = globalCoordinates;
@@ -44,10 +40,8 @@ function createOverlayMarker() {
         return;
     }
 
-    // Find the map canvas
     let mapCanvas = document.querySelectorAll('[class^="guess-map_canvas__"]')[0];
     if (!mapCanvas) {
-        // Try streaks mode
         mapCanvas = document.getElementsByClassName("region-map_mapCanvas__0dWlf")[0];
     }
     
@@ -55,18 +49,14 @@ function createOverlayMarker() {
         updateStatus("❌ Karte nicht gefunden");
         return;
     }
-
-    // Remove existing overlay marker
     removeOverlayMarker();
 
-    // Get map bounds and convert lat/lng to pixel position
     const mapPosition = getMapPixelPosition(lat, lng, mapCanvas);
     if (!mapPosition) {
         updateStatus("❌ Position konnte nicht berechnet werden");
         return;
     }
 
-    // Create overlay marker element
     overlayMarker = document.createElement('div');
     overlayMarker.id = 'geoguessr-overlay-marker';
     overlayMarker.style.cssText = `
@@ -85,7 +75,6 @@ function createOverlayMarker() {
         animation: pulse 2s infinite;
     `;
 
-    // Add pulsing animation
     const style = document.createElement('style');
     style.textContent = `
         @keyframes pulse {
@@ -96,7 +85,6 @@ function createOverlayMarker() {
     `;
     document.head.appendChild(style);
 
-    // Add marker to map container
     const mapContainer = mapCanvas.parentElement;
     mapContainer.style.position = 'relative';
     mapContainer.appendChild(overlayMarker);
@@ -113,17 +101,14 @@ function removeOverlayMarker() {
 
 function getMapPixelPosition(lat, lng, mapCanvas) {
     try {
-        // Get the React fiber to access map instance
         const reactKeys = Object.keys(mapCanvas);
         const reactKey = reactKeys.find(key => key.startsWith("__reactFiber$"));
         const elementProps = mapCanvas[reactKey];
         
-        // Try to get map instance
         let mapInstance = null;
         try {
             mapInstance = elementProps.return.return.memoizedProps.map;
         } catch (e) {
-            // Alternative path for different React structure
             try {
                 mapInstance = elementProps.return.memoizedProps.map;
             } catch (e2) {
@@ -137,7 +122,6 @@ function getMapPixelPosition(lat, lng, mapCanvas) {
             const bounds = mapInstance.getBounds();
             const zoom = mapInstance.getZoom();
             
-            // Convert lat/lng to pixel coordinates
             const scale = Math.pow(2, zoom);
             const worldCoordinate = {
                 x: (lng + 180) / 360 * 256 * scale,
@@ -160,7 +144,6 @@ function getMapPixelPosition(lat, lng, mapCanvas) {
         console.log("Error calculating pixel position:", error);
     }
 
-    // Fallback: simple approximation
     const mapRect = mapCanvas.getBoundingClientRect();
     return {
         x: mapRect.width / 2,
@@ -168,7 +151,6 @@ function getMapPixelPosition(lat, lng, mapCanvas) {
     };
 }
 
-// ====================================Embedded Map====================================
 
 function createEmbeddedMap() {
     if (embeddedMapContainer) {
@@ -212,7 +194,6 @@ function createEmbeddedMap() {
         </div>
     `;
 
-    // Status display
     const statusDiv = document.createElement('div');
     statusDiv.id = 'marker-status';
     statusDiv.style.cssText = `
@@ -224,7 +205,6 @@ function createEmbeddedMap() {
     `;
     statusDiv.textContent = 'Bereit...';
 
-    // Map container
     const mapContainer = document.createElement('div');
     mapContainer.id = 'helper-map-container';
     mapContainer.style.cssText = `
@@ -239,7 +219,6 @@ function createEmbeddedMap() {
     embeddedMapContainer.appendChild(mapContainer);
     document.body.appendChild(embeddedMapContainer);
 
-    // Event listeners
     document.getElementById('close-map').addEventListener('click', () => {
         embeddedMapContainer.style.display = 'none';
     });
@@ -347,7 +326,6 @@ function openInGoogleMaps() {
     window.open(`https://www.google.com/maps/@${lat},${lng},15z`, '_blank');
 }
 
-// Remove cheat detection scripts
 const scripts = document.querySelectorAll('script');
 scripts.forEach(script => {
     if (script.id === "google-maps-cheat-detection-script") {
@@ -355,32 +333,30 @@ scripts.forEach(script => {
     }
 });
 
-// Key event handler
 let onKeyDown = (e) => {
-    if (e.keyCode === 49) { // Key 1 - Toggle embedded map
+    if (e.keyCode === 49) {
         e.stopImmediatePropagation();
         toggleEmbeddedMap();
     }
-    if (e.keyCode === 50) { // Key 2 - Show overlay marker on map
+    if (e.keyCode === 50) {
         e.stopImmediatePropagation();
         createOverlayMarker();
     }
-    if (e.keyCode === 51) { // Key 3 - Hide overlay marker
+    if (e.keyCode === 51) {
         e.stopImmediatePropagation();
         removeOverlayMarker();
         updateStatus("🙈 Overlay-Marker entfernt");
     }
-    if (e.keyCode === 52) { // Key 4 - Open in Google Maps
+    if (e.keyCode === 52) {
         e.stopImmediatePropagation();
         openInGoogleMaps();
     }
-    if (e.keyCode === 53) { // Key 5 - Copy coordinates
+    if (e.keyCode === 53) {
         e.stopImmediatePropagation();
         copyCoordinates();
     }
 }
 
-// Copy coordinates to clipboard
 function copyCoordinates() {
     const {lat, lng} = globalCoordinates;
     if (!lat || !lng) {
@@ -392,7 +368,6 @@ function copyCoordinates() {
     navigator.clipboard.writeText(coordText).then(() => {
         updateStatus(`📋 Koordinaten kopiert: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
     }).catch(() => {
-        // Fallback if clipboard API doesn't work
         prompt("Koordinaten (Strg+C zum Kopieren):", coordText);
         updateStatus("📋 Koordinaten angezeigt");
     });
@@ -400,17 +375,15 @@ function copyCoordinates() {
 
 document.addEventListener("keydown", onKeyDown);
 
-// Auto-create map after page load
 setTimeout(() => {
     createEmbeddedMap();
 }, 3000);
 
-// Update overlay marker position when map moves/zooms
 let lastMapUpdate = 0;
 setInterval(() => {
     if (overlayMarker && globalCoordinates.lat && globalCoordinates.lng) {
         const now = Date.now();
-        if (now - lastMapUpdate > 1000) { // Update max once per second
+        if (now - lastMapUpdate > 1000) {
             const mapCanvas = document.querySelectorAll('[class^="guess-map_canvas__"]')[0] || 
                             document.getElementsByClassName("region-map_mapCanvas__0dWlf")[0];
             
@@ -426,4 +399,5 @@ setInterval(() => {
     }
 
 }, 500);
+
 
