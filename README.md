@@ -1,4 +1,4 @@
-# Advanced GeoGuessr Cheats Extension
+# Advanced GeoGuessr Cheat Extension
 
 This is a userscript designed to enhance the GeoGuessr experience by providing real-time location assistance.  It displays an embedded map with the correct location and adds an optional overlay marker to the in-game map.
 
