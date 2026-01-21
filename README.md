@@ -36,7 +36,7 @@ This is a userscript designed to enhance the GeoGuessr experience by providing r
 1.  Install a userscript manager for your browser:
     *   **Chrome:** [Tampermonkey](https://www.tampermonkey.net/)
     *   **Firefox:** [Greasemonkey](https://www.greasespot.net/)
-2.  Click on the following link to install the script directly from Greasy Fork: [Geoguessr Location Resolver (Overlay Only)](https://update.greasyfork.org/scripts/450253/Geoguessr%20Location%20Resolver%20%28Works%20in%20all%20modes%29.user.js)
+2.  Click on the following link to install the script directly from Greasy Fork: https://greasyfork.org/en/scripts/563451-geoguessr-overlay-cheat
 3.  The userscript manager will prompt you to confirm the installation.  Click "Install".
 4.  Open or refresh the GeoGuessr website ([https://www.geoguessr.com/\*](https://www.geoguessr.com/*)).
 
