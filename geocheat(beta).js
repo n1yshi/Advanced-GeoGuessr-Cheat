@@ -1,3 +1,14 @@
+// ==UserScript==
+// @name         GeoGuessr Overlay Cheat
+// @namespace    http://tampermonkey.net/
+// @version      1.2
+// @description  Undetected Overlay Cheat for GeoGuessr
+// @author       n1yshi
+// @match        https://www.geoguessr.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=geoguessr.com
+// @grant        none
+// ==/UserScript==
+
 let globalCoordinates = {
     lat: 0,
     lng: 0
@@ -23,9 +34,9 @@ XMLHttpRequest.prototype.open = function(method, url) {
 
             globalCoordinates.lat = lat
             globalCoordinates.lng = lng
-            
+
             updateEmbeddedMap(lat, lng);
-            
+
             removeOverlayMarker();
         });
     }
@@ -36,7 +47,7 @@ XMLHttpRequest.prototype.open = function(method, url) {
 function createOverlayMarker() {
     const {lat, lng} = globalCoordinates;
     if (!lat || !lng) {
-        updateStatus("❌ Keine Koordinaten verfügbar");
+        updateStatus("Error: No coordinates available");
         return;
     }
 
@@ -44,16 +55,16 @@ function createOverlayMarker() {
     if (!mapCanvas) {
         mapCanvas = document.getElementsByClassName("region-map_mapCanvas__0dWlf")[0];
     }
-    
+
     if (!mapCanvas) {
-        updateStatus("❌ Karte nicht gefunden");
+        updateStatus("Error: Map not found");
         return;
     }
     removeOverlayMarker();
 
     const mapPosition = getMapPixelPosition(lat, lng, mapCanvas);
     if (!mapPosition) {
-        updateStatus("❌ Position konnte nicht berechnet werden");
+        updateStatus("Error: Position could not be calculated");
         return;
     }
 
@@ -89,7 +100,7 @@ function createOverlayMarker() {
     mapContainer.style.position = 'relative';
     mapContainer.appendChild(overlayMarker);
 
-    updateStatus(`✅ Overlay-Marker gesetzt bei ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+    updateStatus(`Success: Overlay marker set at ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
 }
 
 function removeOverlayMarker() {
@@ -104,7 +115,7 @@ function getMapPixelPosition(lat, lng, mapCanvas) {
         const reactKeys = Object.keys(mapCanvas);
         const reactKey = reactKeys.find(key => key.startsWith("__reactFiber$"));
         const elementProps = mapCanvas[reactKey];
-        
+
         let mapInstance = null;
         try {
             mapInstance = elementProps.return.return.memoizedProps.map;
@@ -121,7 +132,7 @@ function getMapPixelPosition(lat, lng, mapCanvas) {
             const projection = mapInstance.getProjection();
             const bounds = mapInstance.getBounds();
             const zoom = mapInstance.getZoom();
-            
+
             const scale = Math.pow(2, zoom);
             const worldCoordinate = {
                 x: (lng + 180) / 360 * 256 * scale,
@@ -185,9 +196,9 @@ function createEmbeddedMap() {
         justify-content: space-between;
         align-items: center;
     `;
-    
+
     header.innerHTML = `
-        <span>🗺️ Korrekte Position</span>
+        <span>🗺️ Correct Position</span>
         <div>
             <button id="toggle-map-size" style="background: #555; color: white; border: none; padding: 4px 8px; margin-right: 5px; border-radius: 3px; cursor: pointer;">↔</button>
             <button id="close-map" style="background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 3px; cursor: pointer;">✕</button>
@@ -203,7 +214,7 @@ function createEmbeddedMap() {
         font-size: 12px;
         border-bottom: 1px solid #ddd;
     `;
-    statusDiv.textContent = 'Bereit...';
+    statusDiv.textContent = 'Ready...';
 
     const mapContainer = document.createElement('div');
     mapContainer.id = 'helper-map-container';
@@ -247,17 +258,17 @@ function updateEmbeddedMap(lat, lng) {
     const mapContainer = document.getElementById('helper-map-container');
     if (mapContainer && lat && lng) {
         embeddedMapContainer.style.display = 'block';
-        
+
         const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01},${lat-0.01},${lng+0.01},${lat+0.01}&layer=mapnik&marker=${lat},${lng}`;
 
         mapContainer.innerHTML = `
-            <iframe 
-                src="${mapUrl}" 
+            <iframe
+                src="${mapUrl}"
                 style="width: 100%; height: 100%; border: none;"
                 frameborder="0">
             </iframe>
         `;
-        
+
         const header = embeddedMapContainer.querySelector('div');
         const coordSpan = header.querySelector('span');
         coordSpan.innerHTML = `🗺️ ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
@@ -268,14 +279,14 @@ function updateStatus(message) {
     const statusDiv = document.getElementById('marker-status');
     if (statusDiv) {
         statusDiv.textContent = message;
-        statusDiv.style.background = message.includes('✅') ? '#d4edda' : 
-                                   message.includes('❌') ? '#f8d7da' : '#f0f0f0';
+        statusDiv.style.background = message.startsWith('Success:') ? '#d4edda' :
+                                   message.startsWith('Error:') ? '#f8d7da' : '#f0f0f0';
     }
 }
 
 function makeDraggable(element, handle) {
     let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    
+
     handle.onmousedown = dragMouseDown;
     handle.style.cursor = 'move';
 
@@ -312,7 +323,7 @@ function toggleEmbeddedMap() {
             updateEmbeddedMap(globalCoordinates.lat, globalCoordinates.lng);
         }
     } else {
-        embeddedMapContainer.style.display = 
+        embeddedMapContainer.style.display =
             embeddedMapContainer.style.display === 'none' ? 'block' : 'none';
     }
 }
@@ -320,7 +331,7 @@ function toggleEmbeddedMap() {
 function openInGoogleMaps() {
     const {lat, lng} = globalCoordinates;
     if (!lat || !lng) {
-        alert('Keine Koordinaten verfügbar!');
+        alert('No coordinates available!');
         return;
     }
     window.open(`https://www.google.com/maps/@${lat},${lng},15z`, '_blank');
@@ -345,7 +356,7 @@ let onKeyDown = (e) => {
     if (e.keyCode === 51) {
         e.stopImmediatePropagation();
         removeOverlayMarker();
-        updateStatus("🙈 Overlay-Marker entfernt");
+        updateStatus("Success: Overlay marker removed");
     }
     if (e.keyCode === 52) {
         e.stopImmediatePropagation();
@@ -360,16 +371,16 @@ let onKeyDown = (e) => {
 function copyCoordinates() {
     const {lat, lng} = globalCoordinates;
     if (!lat || !lng) {
-        updateStatus("❌ Keine Koordinaten verfügbar");
+        updateStatus("Error: No coordinates available");
         return;
     }
-    
+
     const coordText = `${lat}, ${lng}`;
     navigator.clipboard.writeText(coordText).then(() => {
-        updateStatus(`📋 Koordinaten kopiert: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        updateStatus(`Success: Coordinates copied: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
     }).catch(() => {
-        prompt("Koordinaten (Strg+C zum Kopieren):", coordText);
-        updateStatus("📋 Koordinaten angezeigt");
+        prompt("Coordinates (Ctrl+C to copy):", coordText);
+        updateStatus("Coordinates displayed");
     });
 }
 
@@ -384,9 +395,9 @@ setInterval(() => {
     if (overlayMarker && globalCoordinates.lat && globalCoordinates.lng) {
         const now = Date.now();
         if (now - lastMapUpdate > 1000) {
-            const mapCanvas = document.querySelectorAll('[class^="guess-map_canvas__"]')[0] || 
+            const mapCanvas = document.querySelectorAll('[class^="guess-map_canvas__"]')[0] ||
                             document.getElementsByClassName("region-map_mapCanvas__0dWlf")[0];
-            
+
             if (mapCanvas) {
                 const newPosition = getMapPixelPosition(globalCoordinates.lat, globalCoordinates.lng, mapCanvas);
                 if (newPosition) {
@@ -399,6 +410,3 @@ setInterval(() => {
     }
 
 }, 500);
-
-
-
